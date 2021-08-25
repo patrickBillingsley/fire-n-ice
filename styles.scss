@@ -1,0 +1,30 @@
+:root {
+    --pixel-size: 2px;
+    --grid-cell: calc(var(--pixel-size) * 16);
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: cyan;
+}
+
+canvas {
+    width: calc(14 * var(--grid-cell));
+    height: calc(14 * var(--grid-cell));
+    border: 2px black solid;
+}
+
+h1 {
+    text-align: center;
+}
+
+.pixel-art {
+    image-rendering: pixelated;
+}
+
+.spritesheets {
+    position: absolute;
+    left: -100%;
+}
