@@ -24,7 +24,46 @@ h1 {
     image-rendering: pixelated;
 }
 
-.spritesheets {
+.spritesheet {
     position: absolute;
     left: -100%;
+}
+
+.character {
+    width: calc(32 * var(--pixel-size));
+    height: calc(32 * var(--pixel-size));
+    overflow: hidden;
+
+    &__spritesheet {
+        width: calc(128 * var(--pixel-size));
+        height: calc(160 * var(--pixel-size));
+        animation: turn-left 500ms steps(4);
+    }
+}
+
+@keyframes turn-left {
+    from {
+        transform: translate3d(0px, 0, 0);
+    }
+    to {
+        transform: translate3d(-100%, 0, 0);
+    }
+}
+
+@keyframes turn-right {
+    from {
+        transform: translate3d(-100%, 0, 0);
+    }
+    to {
+        transform: translate3d(0px, 0, 0);
+    }
+}
+
+@keyframes walk-left {
+    from {
+        transform: translate3d(0px, -21%, 0);
+    }
+    to {
+        transform: translate3d(-8.5%, -21%, 0);
+    }
 }

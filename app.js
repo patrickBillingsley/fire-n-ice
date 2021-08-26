@@ -2,8 +2,6 @@ window.addEventListener('load', () => {
     draw();
 })
 
-const selection = [0, 0];
-
 const layers = [
     {
         '0-0': [2, 0],
