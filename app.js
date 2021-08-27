@@ -1,6 +1,45 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+const map = {
+    cols: 14,
+    rows: 14,
+    legend: {
+        0: 'empty',
+        1: 'wall',
+        2: 'ice',
+        3: 'fire',
+        4: 'character',
+        'E': [0, 0, 0],  //empty
+        'B': [1, 0, 1],  //single wall block
+        'L': [2, 0, 1],  //left wall block
+        'W': [3, 0, 1],  //wall block
+        'R': [4, 0, 1],  //right wall block
+        'I': [0, 10, 2], //ice block
+        'F': [10, 0, 3], //flame
+        'C': [0, 0, 4]   //character
+    },
+    layers: [
+        `L W W W W W W W W W W W W R 
+         L W W W W W W W W W W W W R
+         L W W W W W W W W W W W W R
+         L W R E E E E E E E E L W R
+         L W R E E F E I E E E L W R
+         L W R E L W W W W W W W W R
+         L W R E I E E E L W W W W R
+         L W R E I E F E E E E L W R
+         L W R E I E F E E E E L W R
+         L W R E I E F E E E E L W R
+         L W W W W W W W F E E L W R
+         L W W W W W W W W W W W W R
+         L W W W W W W W W W W W W R
+         L W W W W W W W W W W W W R`
+    ],
+    getTile: (layer, col, row) => {
+        return map.legend[layer[row * map.cols + col]]
+    }
+};
+
 const stage = {
     '0-0': [2, 0],
     '1-0': [3, 0],
@@ -214,16 +253,17 @@ const stage = {
     '14-13': [4, 0]
 }
 const sprites = {
-    '6-4': [10, 0],
-    '8-4': [0, 10],
-    '4-6': [0, 10],
-    '4-7': [0, 10],
-    '6-7': [10, 0],
-    '4-8': [0, 10],
-    '6-8': [10, 0],
-    '4-9': [0, 10],
-    '6-9': [10, 0],
-    '8-10': [10, 0]
+    '6-4': 'f',
+    // '6-4': map.legend.f,
+    '8-4': map.legend.i,
+    '4-6': map.legend.i,
+    '4-7': map.legend.i,
+    '6-7': map.legend.f,
+    '4-8': map.legend.i,
+    '6-8': map.legend.f,
+    '4-9': map.legend.i,
+    '6-9': map.legend.f,
+    '8-10': map.legend.f
 };
 
 // State of character
@@ -264,9 +304,9 @@ spritesheet.src = './resources/spritesheets/dana-sprites.png';
 const main = () => {
     window.requestAnimationFrame(main);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    draw(stage);
-    draw(sprites);
-    drawCharacter();
+    draw(map);
+    // draw(sprites);
+    // drawCharacter();
 };
 main()
 
@@ -297,12 +337,27 @@ document.addEventListener('keyup', e => {
 })
 
 function isValidMove(x, y) {
-    if(stage[`${character.x + x}-${character.y + y}`][0] === 0 &&
-        stage[`${character.x + x}-${character.y + y}`][1] === 0) {
+    const nextCell = `${character.x + x}-${character.y + y}`;
+    const nextCellHasSprite = Object.keys(sprites).includes(`${character.x + x}-${character.y + y}`);
+    const nextSprite = sprites[nextCell];
+
+    if(stage[nextCell][0] === 0 &&
+        stage[nextCell][1] === 0) {
+            if(nextCellHasSprite) {
+                // handleNextSprite(nextCell, nextSprite);
+                return false;
+            }
         return true;
     }
     return false;
 }
+
+// function handleNextSprite(cell, sprite) {
+//     console.log('cell:', cell, 'sprite:', sprite);
+//     if(sprite[0] === 0 && sprite[1] === 10) {
+
+//     }
+// }
 
 function updateMatrix(matrix, y, x, val) {
     matrix[y][x] = val;
@@ -311,32 +366,57 @@ function updateMatrix(matrix, y, x, val) {
 function moveCharacter(direction) {
     if(direction === 'left') {
         if(isValidMove(-1, 0)) {
-            character.x += -1;
+            character.x--;
         }
     } else if(direction === 'right') {
         if(isValidMove(1, 0)) {
-            character.x += 1;
+            character.x++;
         }
     }
 }
 
-function draw(obj) {
-    const cropSize = 16;
+function draw(map) {
+    tileSize = 16;
 
-    Object.keys(obj).forEach(key => {
-        xPos = +key.split('-')[0];
-        yPos = +key.split('-')[1];
+    
+    map.layers.forEach(layer => {
+        layer = layer.match(/\w/g);
+        for(let c = 0; c < map.cols; c++) {
+            for(let r = 0; r < map.rows; r++) {
+                const tile = map.getTile(layer, c, r);
 
-        const [tilesheetX, tilesheetY] = obj[key];
-
-        ctx.drawImage(
-            tileset,
-            tilesheetX * cropSize, tilesheetY * cropSize,
-            cropSize, cropSize,
-            xPos * cropSize, yPos * cropSize,
-            cropSize, cropSize
-        )
+                ctx.drawImage(
+                    tileset,
+                    (tile[0]) * tileSize,
+                    (tile[1]) * tileSize,
+                    tileSize,
+                    tileSize,
+                    c * tileSize,
+                    r * tileSize,
+                    tileSize,
+                    tileSize
+                );
+            }
+        }
     })
+
+
+    // const cropSize = 16;
+
+    // Object.keys(obj).forEach(key => {
+    //     xPos = +key.split('-')[0];
+    //     yPos = +key.split('-')[1];
+
+    //     const [tilesheetX, tilesheetY] = obj[key];
+
+    //     ctx.drawImage(
+    //         tileset,
+    //         tilesheetX * cropSize, tilesheetY * cropSize,
+    //         cropSize, cropSize,
+    //         xPos * cropSize, yPos * cropSize,
+    //         cropSize, cropSize
+    //     )
+    // })
 }
 
 function drawCharacter() {

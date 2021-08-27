@@ -1,5 +1,5 @@
 :root {
-    --pixel-size: 2px;
+    --pixel-size: 4px;
     --grid-cell: calc(var(--pixel-size) * 16);
 }
 
@@ -8,80 +8,75 @@ body {
     flex-direction: column;
     align-items: center;
     background-color: cyan;
-    position: relative;
-    overflow: hidden;
 }
 h1 {
     text-align: center;
 }
 
-.screen {
+.canvas {
     width: calc(14 * var(--grid-cell));
     height: calc(14 * var(--grid-cell));
-    position: relative;
 }
-.canvas {
-    width: 100%;
-    position: absolute;
-}
-.character {
-    width: calc(32 * var(--pixel-size));
-    height: calc(32 * var(--pixel-size));
-    position: absolute;
-    overflow: hidden;
-    
-    &__spritesheet {
-        width: calc(128 * var(--pixel-size));
-        height: calc(160 * var(--pixel-size));
-    }
-
-    &__walk-left {
-        animation: walk-left 500ms steps(2) infinite;
-    }
-    
-    &__walk-right {
-        animation: walk-right 500ms steps(2) infinite;
-    }
-}
-
 .pixel-art {
     image-rendering: pixelated;
 }
-.spritesheet {
-    position: absolute;
-    top: 0;
-    visibility: hidden;
-}
 
-@keyframes turn-left {
-    from {
-        transform: translate3d(0px, 0, 0);
-    }
-    to {
-        transform: translate3d(-100%, 0, 0);
-    }
-}
-@keyframes turn-right {
-    from {
-        transform: translate3d(-100%, 0, 0);
-    }
-    to {
-        transform: translate3d(0px, 0, 0);
-    }
-}
-@keyframes walk-left {
-    from {
-        transform: translate3d(0px, -20%, 0);
-    }
-    to {
-        transform: translate3d(-50%, -20%, 0);
-    }
-}
-@keyframes walk-right {
-    from {
-        transform: translate3d(-50%, -20%, 0);
-    }
-    to {
-        transform: translate3d(-100%, -20%, 0);
-    }
-}
+// .character {
+//     width: calc(32 * var(--pixel-size));
+//     height: calc(32 * var(--pixel-size));
+//     position: absolute;
+//     overflow: hidden;
+    
+//     &__spritesheet {
+//         width: calc(128 * var(--pixel-size));
+//         height: calc(160 * var(--pixel-size));
+//     }
+
+//     &__walk-left {
+//         animation: walk-left 500ms steps(2) infinite;
+//     }
+    
+//     &__walk-right {
+//         animation: walk-right 500ms steps(2) infinite;
+//     }
+// }
+
+
+// .spritesheet {
+//     position: absolute;
+//     top: 0;
+//     visibility: hidden;
+// }
+
+// @keyframes turn-left {
+//     from {
+//         transform: translate3d(0px, 0, 0);
+//     }
+//     to {
+//         transform: translate3d(-100%, 0, 0);
+//     }
+// }
+// @keyframes turn-right {
+//     from {
+//         transform: translate3d(-100%, 0, 0);
+//     }
+//     to {
+//         transform: translate3d(0px, 0, 0);
+//     }
+// }
+// @keyframes walk-left {
+//     from {
+//         transform: translate3d(0px, -20%, 0);
+//     }
+//     to {
+//         transform: translate3d(-50%, -20%, 0);
+//     }
+// }
+// @keyframes walk-right {
+//     from {
+//         transform: translate3d(-50%, -20%, 0);
+//     }
+//     to {
+//         transform: translate3d(-100%, -20%, 0);
+//     }
+// }
