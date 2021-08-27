@@ -1,5 +1,3 @@
-const character = document.getElementById('character');
-const characterSpritesheet = document.getElementById('sprite')
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -229,9 +227,12 @@ const sprites = {
 };
 
 // State of character
-let xPlayer = 10;
-let yPlayer = 4;
-// const heldDirections = [];
+const character = {
+    x: 10,
+    y: 4
+};
+
+const heldDirections = [];
 // const speed = 1;
 
 // const placeCharacter = () => {
@@ -255,47 +256,69 @@ let yPlayer = 4;
 // };
 
 const tileset = new Image();
-tileset.onload = () => {
-    draw(stage);
-    draw(sprites);
-}
 tileset.src = './resources/spritesheets/tileset.png';
 
 const spritesheet = new Image();
-spritesheet.onload = () => {
-    drawSprite();
-}
 spritesheet.src = './resources/spritesheets/dana-sprites.png';
 
-// const main = () => {
-//     window.requestAnimationFrame(main);
-// };
-// main()
+const main = () => {
+    window.requestAnimationFrame(main);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw(stage);
+    draw(sprites);
+    drawCharacter();
+};
+main()
 
-// const directions = {
-//     left: 'left',
-//     right: 'right'
-// };
+const directions = {
+    left: 'left',
+    right: 'right'
+};
 
-// const keys = {
-//     'ArrowLeft': directions.left,
-//     'ArrowRight': directions.right
-// };
+const keys = {
+    'ArrowLeft': directions.left,
+    'ArrowRight': directions.right
+};
 
-// document.addEventListener('keydown', e => {
-//     const dir = keys[e.code];
-//     if(dir && heldDirections.indexOf(dir) === -1) {
-//         heldDirections.unshift(dir);
-//     }
-// })
+document.addEventListener('keydown', e => {
+    const dir = keys[e.code];
+    if(dir && heldDirections.indexOf(dir) === -1) {
+        heldDirections.unshift(dir);
+    }
+    moveCharacter(heldDirections[0]);
+})
 
-// document.addEventListener('keyup', e => {
-//     const dir = keys[e.code];
-//     const index = heldDirections.indexOf(dir);
-//     if(index > -1) {
-//         heldDirections.splice(index, 1);
-//     }
-// })
+document.addEventListener('keyup', e => {
+    const dir = keys[e.code];
+    const index = heldDirections.indexOf(dir);
+    if(index > -1) {
+        heldDirections.splice(index, 1);
+    }
+})
+
+function isValidMove(x, y) {
+    if(stage[`${character.x + x}-${character.y + y}`][0] === 0 &&
+        stage[`${character.x + x}-${character.y + y}`][1] === 0) {
+        return true;
+    }
+    return false;
+}
+
+function updateMatrix(matrix, y, x, val) {
+    matrix[y][x] = val;
+}
+
+function moveCharacter(direction) {
+    if(direction === 'left') {
+        if(isValidMove(-1, 0)) {
+            character.x += -1;
+        }
+    } else if(direction === 'right') {
+        if(isValidMove(1, 0)) {
+            character.x += 1;
+        }
+    }
+}
 
 function draw(obj) {
     const cropSize = 16;
@@ -316,12 +339,14 @@ function draw(obj) {
     })
 }
 
-function drawSprite() {
+function drawCharacter() {
+    const cropSize = 32;
+
     ctx.drawImage(
         spritesheet,
         96, 0,
-        32, 32,
-        xPlayer * 16 - 8, (yPlayer - 1) * 16,
-        32, 32
+        cropSize, cropSize,
+        character.x * 16 - 8, (character.y - 1) * 16,
+        cropSize, cropSize
     )
 }
