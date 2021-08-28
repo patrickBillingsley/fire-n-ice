@@ -24,13 +24,13 @@ const map = {
          L W W W W W W W W W W W W R
          L W W W W W W W W W W W W R
          L W R E E E E E E E E L W R
-         L W R E C F E I E E C L W R
+         L W R E E F E I E C E L W R
          L W R E L W W W W W W W W R
          L W R E I E E E L W W W W R
          L W R E I E F E E E E L W R
          L W R E I E F E E E E L W R
          L W R E I E F E E E E L W R
-         L W W W W W W W F C E L W R
+         L W W W W W W W F E E L W R
          L W W W W W W W W W W W W R
          L W W W W W W W W W W W W R
          L W W W W W W W W W W W W R`,
