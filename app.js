@@ -39,40 +39,15 @@ const map = {
     }
 };
 
-// State of character
-const character = {
-    x: 9,
-    y: 4
-};
-
 const heldDirections = [];
-// const speed = 1;
-
-// const placeCharacter = () => {
-//     const pixelSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--pixel-size'));
-
-//     const heldDirection = heldDirections[0];
-//     if(heldDirection) {
-//         if(heldDirection === directions.right) {x += speed;}
-//         if(heldDirection === directions.left)  {x -= speed;}
-//         character.setAttribute('facing', heldDirection)
-//     }
-//     character.setAttribute('walking', heldDirection ? 'true' : 'false');
-
-//     if(character.attributes.walking.value === 'true') {
-//         characterSpritesheet.className = `character__spritesheet pixel-art character__walk-${heldDirection}`;
-//     } else {
-//         characterSpritesheet.className = 'character__spritesheet pixel-art';
-//     }
-
-//     character.style.transform = `translate3d(${x * pixelSize}px, ${y * pixelSize}px, 0)`;
-// };
 
 const tileset = new Image();
 tileset.src = './resources/spritesheets/tileset.png';
 
 const spritesheet = new Image();
 spritesheet.src = './resources/spritesheets/dana-sprites.png';
+
+formatRef();
 
 const main = () => {
     window.requestAnimationFrame(main);
@@ -81,67 +56,62 @@ const main = () => {
 };
 main()
 
-// const directions = {
-//     left: 'left',
-//     right: 'right'
-// };
+const keys = {
+    'ArrowLeft': 'left',
+    'ArrowRight': 'right'
+};
 
-// const keys = {
-//     'ArrowLeft': directions.left,
-//     'ArrowRight': directions.right
-// };
+document.addEventListener('keydown', e => {
+    const dir = keys[e.code];
+    if(dir && heldDirections.indexOf(dir) === -1) {
+        heldDirections.unshift(dir);
+    }
+    moveCharacter(heldDirections[0]);
+})
 
-// document.addEventListener('keydown', e => {
-//     const dir = keys[e.code];
-//     if(dir && heldDirections.indexOf(dir) === -1) {
-//         heldDirections.unshift(dir);
-//     }
-//     moveCharacter(heldDirections[0]);
-// })
+document.addEventListener('keyup', e => {
+    const dir = keys[e.code];
+    const index = heldDirections.indexOf(dir);
+    if(index > -1) {
+        heldDirections.splice(index, 1);
+    }
+})
 
-// document.addEventListener('keyup', e => {
-//     const dir = keys[e.code];
-//     const index = heldDirections.indexOf(dir);
-//     if(index > -1) {
-//         heldDirections.splice(index, 1);
-//     }
-// })
+function formatRef() {
+    if(!Array.isArray(map.ref)) {
+        map.ref = map.ref.match(/\w/g);
+    }
+}
 
-// function isValidMove(x, y) {
-//     const nextCell = `${character.x + x}-${character.y + y}`;
-//     const nextCellHasSprite = Object.keys(sprites).includes(`${character.x + x}-${character.y + y}`);
-//     const nextSprite = sprites[nextCell];
+function isValidMove(x) {
+    const nextCell = map.ref.indexOf('C') + x;
+    const nextCellLogic = map.legend[map.ref[nextCell]][2];
 
-//     if(stage[nextCell][0] === 0 &&
-//         stage[nextCell][1] === 0) {
-//             if(nextCellHasSprite) {
-//                 // handleNextSprite(nextCell, nextSprite);
-//                 return false;
-//             }
-//         return true;
-//     }
-//     return false;
-// }
+    if(nextCellLogic === 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
-// function moveCharacter(direction) {
-//     if(direction === 'left') {
-//         if(isValidMove(-1, 0)) {
-//             character.x--;
-//         }
-//     } else if(direction === 'right') {
-//         if(isValidMove(1, 0)) {
-//             character.x++;
-//         }
-//     }
-// }
+function moveCharacter(direction) {
+    if(direction === 'left') {
+        if(isValidMove(-1)) {
+            map.ref.splice(map.ref.indexOf('C') - 1, 2, 'C', 'E');
+        }
+    } else if(direction === 'right') {
+        if(isValidMove(1)) {
+            map.ref.splice(map.ref.indexOf('C'), 2, 'E', 'C');
+        }
+    }
+}
 
 function draw(map) {
     const tileSize = 16;
-    const ref = map.ref.match(/\w/g)
 
     for(let c = 0; c < map.cols; c++) {
         for(let r = 0; r < map.rows; r++) {
-            const tile = map.getTile(ref, c, r);
+            const tile = map.getTile(map.ref, c, r);
 
             ctx.drawImage(
                 tileset,
@@ -156,25 +126,24 @@ function draw(map) {
             )
 
             if(tile[2] === 4) {
-                drawCharacter(c, r);
+                drawSprite(spritesheet, 32, c, r);
             }
         }
     }
 }
 
-function drawCharacter(c, r) {
-    const tileSize = 32;
+function drawSprite(sprites, size, c, r) {
     const yPos = (r - 1) * 16;
 
     ctx.drawImage(
-        spritesheet,
-        tileSize * 3, 
-        tileSize * 0,
-        tileSize, 
-        tileSize,
+        sprites,
+        size * 3, 
+        size * 0,
+        size, 
+        size,
         c * 16,
         yPos,
-        tileSize,
-        tileSize
+        size,
+        size
     )
 }
