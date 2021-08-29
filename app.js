@@ -5,16 +5,16 @@ const map = {
     cols: 14,
     rows: 14,
     legend: {
-        0: 'empty',
-        1: 'wall',
+        0: 'wall',
+        1: 'empty',
         2: 'ice',
         3: 'fire',
         4: 'character',
-        'E': [0, 0, 0],  //empty
-        'B': [1, 0, 1],  //single wall block
-        'L': [2, 0, 1],  //left wall block
-        'W': [3, 0, 1],  //wall block
-        'R': [4, 0, 1],  //right wall block
+        'B': [1, 0, 0],  //single wall block
+        'L': [2, 0, 0],  //left wall block
+        'W': [3, 0, 0],  //wall block
+        'R': [4, 0, 0],  //right wall block
+        'E': [0, 0, 1],  //empty
         'I': [0, 10, 2], //ice block
         'F': [10, 0, 3], //flame
         'C': [0, 0, 4]   //character
@@ -83,25 +83,47 @@ function formatRef() {
     }
 }
 
-function isValidMove(x) {
-    const nextCell = map.ref.indexOf('C') + x;
+function isValidMove(currentCell, x) {
+    const nextCell = currentCell + x;
     const nextCellLogic = map.legend[map.ref[nextCell]][2];
 
-    if(nextCellLogic === 0) {
-        return true;
-    } else {
-        return false;
-    }
+    return nextCellLogic;
 }
 
 function moveCharacter(direction) {
+    const currentCell = map.ref.indexOf('C');
+
     if(direction === 'left') {
-        if(isValidMove(-1)) {
-            map.ref.splice(map.ref.indexOf('C') - 1, 2, 'C', 'E');
+        if(isValidMove(currentCell, -1) === 1) {
+            map.ref.splice(currentCell - 1, 2, 'C', 'E');
+        }
+        if(isValidMove(currentCell, -1) === 2) {
+            moveIce(currentCell - 1, -1);
         }
     } else if(direction === 'right') {
-        if(isValidMove(1)) {
+        if(isValidMove(currentCell, 1) === 1) {
             map.ref.splice(map.ref.indexOf('C'), 2, 'E', 'C');
+        }
+        if(isValidMove(currentCell, 1) === 2) {
+            moveIce(currentCell + 1, 1);
+        }
+    }
+}
+
+function moveIce(currentCell, x) {
+    if(isValidMove(currentCell, x) === 1) {
+        if(x === -1){
+            map.ref.splice(currentCell + x, 2, 'I', 'E')
+        } else {
+            map.ref.splice(currentCell, 2, 'E', 'I')
+        }
+        moveIce(currentCell - 1, x);
+    }
+    if(isValidMove(currentCell, x) === 3) {
+        if(x === -1){
+            map.ref.splice(currentCell + x, 2, 'E', 'E')
+        } else {
+            map.ref.splice(currentCell, 2, 'E', 'E')
         }
     }
 }
