@@ -52,6 +52,7 @@ formatRef();
 const main = () => {
     window.requestAnimationFrame(main);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    moveCharacter('down');
     draw(map);
 };
 main()
@@ -93,7 +94,12 @@ function isValidMove(currentCell, x) {
 function moveCharacter(direction) {
     const currentCell = map.ref.indexOf('C');
 
-    if(direction === 'left') {
+    if(direction === 'down') {
+        if(isValidMove(currentCell, map.cols)) {
+            map.ref.splice(currentCell, 1, 'E');
+            map.ref.splice(currentCell + map.cols, 1, 'C');
+        }
+    }else if(direction === 'left') {
         if(isValidMove(currentCell, -1) === 1) {
             map.ref.splice(currentCell - 1, 2, 'C', 'E');
         }
@@ -111,6 +117,11 @@ function moveCharacter(direction) {
 }
 
 function moveIce(currentCell, x) {
+    if(isValidMove(currentCell, map.cols) === 1) {
+        map.ref.splice(currentCell, 1, 'E');
+        map.ref.splice(currentCell + map.cols, 1, 'I');
+        moveIce(currentCell + map.cols, map.cols);
+    }
     if(isValidMove(currentCell, x) === 1) {
         if(x === -1){
             map.ref.splice(currentCell + x, 2, 'I', 'E')
