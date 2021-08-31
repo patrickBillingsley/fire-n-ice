@@ -52,7 +52,6 @@ formatRef();
 const main = () => {
     window.requestAnimationFrame(main);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    moveCharacter('down');
     draw(map);
 };
 main()
@@ -93,13 +92,7 @@ function isValidMove(currentCell, x) {
 
 function moveCharacter(direction) {
     const currentCell = map.ref.indexOf('C');
-
-    if(direction === 'down') {
-        if(isValidMove(currentCell, map.cols)) {
-            map.ref.splice(currentCell, 1, 'E');
-            map.ref.splice(currentCell + map.cols, 1, 'C');
-        }
-    }else if(direction === 'left') {
+    if(direction === 'left') {
         if(isValidMove(currentCell, -1) === 1) {
             map.ref.splice(currentCell - 1, 2, 'C', 'E');
         }
@@ -117,18 +110,14 @@ function moveCharacter(direction) {
 }
 
 function moveIce(currentCell, x) {
-    if(isValidMove(currentCell, map.cols) === 1) {
-        map.ref.splice(currentCell, 1, 'E');
-        map.ref.splice(currentCell + map.cols, 1, 'I');
-        moveIce(currentCell + map.cols, map.cols);
-    }
     if(isValidMove(currentCell, x) === 1) {
         if(x === -1){
             map.ref.splice(currentCell + x, 2, 'I', 'E')
-        } else {
+        } else if(x === 1) {
             map.ref.splice(currentCell, 2, 'E', 'I')
         }
-        moveIce(currentCell - 1, x);
+        updateMap();
+        moveIce(currentCell + x, x);
     }
     if(isValidMove(currentCell, x) === 3) {
         if(x === -1){
@@ -139,7 +128,36 @@ function moveIce(currentCell, x) {
     }
 }
 
+function updateMap() {
+    for(let i = map.ref.length - 1; i > 0; i--) {
+        let currentCell = map.ref[i];
+        let cellBelow = map.ref[i + map.cols];
+        if(currentCell === 'I') {
+            if(cellBelow === 'E') {
+                map.ref.splice(i, 1, 'E');
+                map.ref.splice(i + map.cols, 1, 'I');
+            }
+            if(cellBelow === 'F') {
+                map.ref.splice(i, 1, 'E');
+                map.ref.splice(i + map.cols, 1, 'E');
+            }
+        } else if(currentCell === 'F') {
+            if(cellBelow === 'E') {
+                map.ref.splice(i, 1, 'E');
+                map.ref.splice(i + map.cols, 1, 'F');
+            }
+        } else if(currentCell === 'C') {
+            if(cellBelow === 'E') {
+                map.ref.splice(i, 1, 'E');
+                map.ref.splice(i + map.cols, 1, 'C');
+            }
+        }
+    }
+}
+
 function draw(map) {
+    updateMap();
+
     const tileSize = 16;
 
     for(let c = 0; c < map.cols; c++) {
