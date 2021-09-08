@@ -1,6 +1,31 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+class Animator {
+    constructor(key, frameCount, delay) {
+        this.key = key;
+        this.count = 0;
+        this.delay = delay;
+        this.frameCount = frameCount;
+        this.frameIndex = 0;
+    }
+
+    animate() {
+        this.count++;
+        
+        if(this.count > this.delay) {
+            this.count = 0;
+            this.frameIndex = (this.frameIndex === this.frameCount - 1) ? 0 : this.frameIndex + 1;
+            map.legend[this.key][1] = this.frameIndex;
+        }
+    }
+}
+
+const animations = {
+    'I': new Animator('I', 2, 20),
+    'F': new Animator('F', 6, 10)
+};
+
 const map = {
     cols: 14,
     rows: 14,
@@ -15,8 +40,8 @@ const map = {
         'W': [3, 0, 0],  //wall block
         'R': [4, 0, 0],  //right wall block
         'E': [0, 0, 1],  //empty
-        'I': [0, 10, 2], //ice block
-        'F': [10, 0, 3], //flame
+        'I': [8, 0, 2], //ice block
+        'F': [12, 0, 3], //flame
         'C': [0, 0, 4]   //character
     },
     ref:
@@ -30,7 +55,7 @@ const map = {
          L W R E I E F E E E E L W R
          L W R E I E F E E E E L W R
          L W R E I E F E E E E L W R
-         L W W W W W W W F E E L W R
+         L W W W W W W R F E E L W R
          L W W W W W W W W W W W W R
          L W W W W W W W W W W W W R
          L W W W W W W W W W W W W R`,
@@ -42,7 +67,7 @@ const map = {
 const heldDirections = [];
 
 const tileset = new Image();
-tileset.src = './resources/spritesheets/tileset.png';
+tileset.src = './resources/spritesheets/level1.png';
 
 const spritesheet = new Image();
 spritesheet.src = './resources/spritesheets/dana-sprites.png';
@@ -51,6 +76,11 @@ formatRef();
 
 const main = () => {
     window.requestAnimationFrame(main);
+
+    Object.values(animations).forEach(animator => {
+        animator.animate();
+    })
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     draw(map);
 };
