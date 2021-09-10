@@ -28,16 +28,34 @@ class Map {
     tileSize = 16;
 
     legend = {
-        'E': 0,  //empty
-        'B': 1,  //single wall block
-        'L': 2,  //left wall block
-        'W': 3,  //center wall block
-        'R': 4,  //right wall block
+        'E': 0,  // empty
+        'B': 1,  // single wall block
+        'L': 2,  // left wall block
+        'W': 3,  // center wall block
+        'R': 4,  // right wall block
     };
 
     formatRef = ref => {
-        return ref.map(x => Object.keys(this.legend).includes(x) ? x : 'E')
-    }
+        return ref.map((x, index) => {
+            if(x === 'W') {
+                if(index % this.cols === 0 ) {          // left wall
+                    return 'L';
+                }
+                if(ref[index-1] !== 'W') {              // left cap
+                    return 'L';
+                }
+                if((index + 1) % this.cols === 0) {     // right wall
+                    return 'R';
+                }
+                if(ref[index+1] !== 'W') {              // right cap
+                    return 'R';
+                }
+                return 'W';
+            } else {
+                return 'E';
+            }
+        })
+    };
 
     getTile = (col, row) => {
         return this.legend[this.ref[row * this.cols + col]];
@@ -66,32 +84,55 @@ class Map {
     };
 };
 
+// class Sprites {
+//     constructor(cols, rows, ref) {
+//         this.cols = cols;
+//         this.rows = rows;
+//         this.ref = this.formatRef(ref);
+
+//         console.log(this.ref);
+//     }
+
+//     legend = {
+//         'I': 0, // single ice block
+//         'L': 1, // left ice block
+//         'M': 2, // middle ice block
+//         'R': 3, // right ice block
+//         'F': 6  // fire
+//     }
+
+//     formatRef = ref => {
+//         return ref.map(x => Object.keys(this.legend).includes(x) ? x : null);
+//     }
+// }
+
 class Level {
     constructor(cols, rows, ref) {
         this.ref = this.refToArray(ref);
         this.map = new Map(cols, rows, this.ref);
+        // this.sprite = new Sprites(cols, rows, this.ref);
     }
 
     refToArray = ref => {
         return ref.match(/\w/g);
-    }
-}
+    };
+};
 
 const ref = [
-    `L W W W W W W W W W W W W R 
-     L W W W W W W W W W W W W R
-     L W W W W W W W W W W W W R
-     L W R E E E E E E E E L W R
-     L W R E E F E I E C E L W R
-     L W R E L W W W W W W W W R
-     L W R E I E E E L W W W W R
-     L W R E I E F E E E E L W R
-     L W R E I E F E E E E L W R
-     L W R E I E F E E E E L W R
-     L W W W W W W R F E E L W R
-     L W W W W W W W W W W W W R
-     L W W W W W W W W W W W W R
-     L W W W W W W W W W W W W R`
+    `W W W W W W W W W W W W W W 
+     W W W W W W W W W W W W W W
+     W W W W W W W W W W W W W W
+     W W W E E E E E E E E W W W
+     W W W E E F I I I C E W W W
+     W W W E W W W W W W W W W W
+     W W W E I E E E W W W W W W
+     W W W E I E F E E E E W W W
+     W W W E I E F E E E E W W W
+     W W W E I E F E E E E W W W
+     W W W W W W W W F E E W W W
+     W W W W W W W W W W W W W W
+     W W W W W W W W W W W W W W
+     W W W W W W W W W W W W W W`
 ];
 
 const level = [
