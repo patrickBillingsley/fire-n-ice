@@ -1,121 +1,106 @@
-class GridSystem {
-    constructor(matrix, playerX, playerY) {
-        this.matrix = matrix;
-        this.outlineContext = this.#getContext(0, 0, '#444');
-        this.topContext = this.#getContext(0, 0, '#111', true);
-        this.cellSize = 16;
-        this.padding = 0;
+const canvas = {
+    level: document.getElementById('level'),
+    sprite: document.getElementById('sprite')
+};
 
-        this.player = { x: playerX, y: playerY, color: 'orange' };
-        this.matrix[playerY][playerX] = 4;
+const ctx = {
+    level: canvas.level.getContext('2d'),
+    sprite: canvas.sprite.getContext('2d')
+};
 
-        document.addEventListener('keydown', this.movePlayer);
+const spritesheet = {
+    level: new Image(),
+    sprite: new Image(),
+    character: new Image()
+};
+
+spritesheet.level.src = './resources/spritesheets/level.png';
+spritesheet.sprite.src = './resources/spritesheets/sprite.png';
+spritesheet.character.src = './resources/spritesheets/dana-sprites.png';
+
+class Map {
+    constructor(cols, rows, ref) {
+        this.cols = cols;
+        this.rows = rows;
+        this.ref = this.formatRef(ref);
     }
 
-    #isValidMove(x, y) {
-        if(this.matrix[this.player.y + y][this.player.x + x] === 0) {
-            return true;
-        }
-        return false;
+    tileSize = 16;
+
+    legend = {
+        'E': 0,  //empty
+        'B': 1,  //single wall block
+        'L': 2,  //left wall block
+        'W': 3,  //center wall block
+        'R': 4,  //right wall block
+    };
+
+    formatRef = ref => {
+        return ref.map(x => Object.keys(this.legend).includes(x) ? x : 'E')
     }
 
-    #updateMatrix(y, x, val) {
-        this.matrix[y][x] = val;
-    }
+    getTile = (col, row) => {
+        return this.legend[this.ref[row * this.cols + col]];
+    };
 
-    movePlayer = ({ keyCode }) => {
-        if(keyCode === 37) {
-            if(this.#isValidMove(-1, 0)) {
-                this.#updateMatrix(this.player.y, this.player.x, 0);
-                this.#updateMatrix(this.player.y, this.player.x - 1, 4);
-                this.player.x--;
-                this.render();
-            }
-        } else if(keyCode === 39) {
-            if(this.#isValidMove(1, 0)) {
-                this.#updateMatrix(this.player.y, this.player.x, 0);
-                this.#updateMatrix(this.player.y, this.player.x + 1, 4);
-                this.player.x++;
-                this.render();
-            }
-        }
-    }
-
-    #getCenter(w, h) {
-        return {
-            x: window.innerWidth / 2 - w / 2 + 'px',
-            y: window.innerHeight / 2 - h / 2 + 'px'
-        }
-        
-    }
-
-    #getContext(w, h, color='111', isTransparent=false) {
-        this.canvas = document.createElement('canvas');
-        this.context = this.canvas.getContext('2d');
-        this.width = this.canvas.width = w;
-        this.height = this.canvas.height = h;
-        this.canvas.style.position = 'absolute';
-        this.canvas.style.background = color;
-        if(isTransparent) {
-            this.canvas.style.backgroundColor = 'transparent';
-        }
-        const center = this.#getCenter(w, h);
-        this.canvas.style.marginLeft = center.x; 
-        this.canvas.style.marginTop = center.y;
-        document.body.appendChild(this.canvas);
-
-        return this.context;
-    }
-
-    render() {
-        const w = (this.cellSize + this.padding) * this.matrix[0].length - (this.padding);
-        const h = (this.cellSize + this.padding) * this.matrix.length - (this.padding);
-
-        this.outlineContext.canvas.width = w;
-        this.outlineContext.canvas.height = h;
-
-        const center = this.#getCenter(w, h);
-        this.outlineContext.canvas.style.marginLeft = center.x; 
-        this.outlineContext.canvas.style.marginTop = center.y;
-
-        this.topContext.canvas.style.marginLeft = center.x; 
-        this.topContext.canvas.style.marginTop = center.y;
-
-        for(let row = 0; row < matrix.length; row++) {
-            for(let col = 0; col < matrix[row].length; col++) {
-                const cellVal = this.matrix[row][col];
-                let color =
-                  cellVal === 1 ? 'tan'
-                : cellVal === 2 ? 'cyan'
-                : cellVal === 3 ? 'red'
-                : cellVal === 4 ? this.player.color
-                : 'black';
-
-                this.outlineContext.fillStyle = color;
-                this.outlineContext.fillRect(col * (this.cellSize + this.padding),
-                row * (this.cellSize + this.padding),
-                this.cellSize, this.cellSize);
+    draw = () => {
+        spritesheet.level.onload = () => {
+            for(let r = 0; r < this.rows; r++) {
+                for(let c = 0; c < this.cols; c++) {
+                    let tile = this.getTile(c, r);
+                    
+                    ctx.level.drawImage(
+                        spritesheet.level,
+                        tile * this.tileSize,
+                        0,
+                        this.tileSize,
+                        this.tileSize,
+                        c * this.tileSize,
+                        r * this.tileSize,
+                        this.tileSize,
+                        this.tileSize
+                    )
+                }
             }
         }
+    };
+};
+
+class Level {
+    constructor(cols, rows, ref) {
+        this.ref = this.refToArray(ref);
+        this.map = new Map(cols, rows, this.ref);
+    }
+
+    refToArray = ref => {
+        return ref.match(/\w/g);
     }
 }
 
-const matrix = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 0, 0, 3, 0, 2, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 0, 2, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 0, 2, 0, 3, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 0, 2, 0, 3, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 0, 2, 0, 3, 0, 0, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+const ref = [
+    `L W W W W W W W W W W W W R 
+     L W W W W W W W W W W W W R
+     L W W W W W W W W W W W W R
+     L W R E E E E E E E E L W R
+     L W R E E F E I E C E L W R
+     L W R E L W W W W W W W W R
+     L W R E I E E E L W W W W R
+     L W R E I E F E E E E L W R
+     L W R E I E F E E E E L W R
+     L W R E I E F E E E E L W R
+     L W W W W W W R F E E L W R
+     L W W W W W W W W W W W W R
+     L W W W W W W W W W W W W R
+     L W W W W W W W W W W W W R`
 ];
 
-const gridSystem = new GridSystem(matrix, 9, 4);
-gridSystem.render();
+const level = [
+    new Level(14, 14, ref[0])
+];
+
+level[0].map.draw();
+
+// const main = () => {
+//     window.requestAnimationFrame(main);
+// }
+// main();

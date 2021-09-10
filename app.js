@@ -26,6 +26,29 @@ const animations = {
     'F': new Animator('F', 6, 10)
 };
 
+const spriteAnimations = [];
+const spriteAnimationStates = [
+    {
+        name: 'turn',
+        frames: 4
+    },
+    {
+        name: 'walk',
+        frames: 2
+    }
+];
+spriteAnimationStates.forEach((state, index) => {
+    let frames = {
+        loc: []
+    }
+    for(let j = 0; j < state.frames; j++) {
+        let positionX = index * 32;
+        let positionY = j * 32;
+        frames.loc.push({x: positionX, y: positionY});
+    }
+    spriteAnimations[state.name] = frames;
+});
+
 const map = {
     cols: 14,
     rows: 14,
@@ -40,7 +63,7 @@ const map = {
         'W': [3, 0, 0],  //wall block
         'R': [4, 0, 0],  //right wall block
         'E': [0, 0, 1],  //empty
-        'I': [8, 0, 2], //ice block
+        'I': [8, 0, 2],  //ice block
         'F': [12, 0, 3], //flame
         'C': [0, 0, 4]   //character
     },
@@ -215,14 +238,15 @@ function draw(map) {
 
 function drawSprite(sprites, size, c, r) {
     const yPos = (r - 1) * 16;
+    const xPos = (c - 1) * 16;
 
     ctx.drawImage(
         sprites,
-        size * 3, 
-        size * 0,
+        size * 0, 
+        size * 3,
         size, 
         size,
-        c * 16,
+        xPos + 8,
         yPos,
         size,
         size
