@@ -4,10 +4,11 @@
 }
 
 body {
+    background-color: cyan;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: cyan;
 }
 h1 {
     text-align: center;
@@ -16,6 +17,8 @@ h1 {
 .canvas {
     width: calc(14 * var(--grid-cell));
     height: calc(14 * var(--grid-cell));
+    position: absolute;
+    top: 100px;
 }
 .pixel-art {
     image-rendering: pixelated;
