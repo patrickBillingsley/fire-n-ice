@@ -31,6 +31,12 @@ let keysPressed = [];
 window.addEventListener('keydown', ({ code }) => {
     if(keys.includes(code) && !keysPressed.includes(code)) {
         keysPressed.unshift(code);
+
+        if(keysPressed[0] === 'ArrowLeft') {
+            return level[0].sprite.player.facingRight = false;
+        } else {
+            return level[0].sprite.player.facingRight = true;
+        }
     }
 });
 
@@ -207,9 +213,34 @@ class Character {
         this.timeMoved = 0;
         this.delayMove = 700;
 
-        this.facing = 'right';
-        this.walking = false;
-        this.falling = false;
+        this.facingRight = true;
+        this.isWalking = false;
+        this.isFalling = false;
+        this.gameFrame = 0;
+        this.speed = 8;
+
+        this.playerState = this.setState();
+
+        this.generateAnimations();
+    }
+
+    setState = () => {
+        if(this.isFalling) {
+            return 'fall'
+        }
+        if(this.isWalking) {
+            if(this.facingRight) {
+                return 'walkRight';
+            } else {
+                return 'walkLeft';
+            }
+        } else {
+            if(this.facingRight) {
+                return 'turnRight';
+            } else {
+                return 'turnLeft';
+            }
+        }
     }
 
     legend = {
@@ -220,11 +251,62 @@ class Character {
         'C': 0
     }
     
-    animations = {
-        turnLeft: new Animator(3, 50),
-        turnRight: new Animator(3, 50),
-        
-    }
+    animations = {};
+    
+    animationStates = [
+        {
+            name: 'turnLeft',
+            frames: 4
+        },
+        {
+            name: 'turnRight',
+            frames: 4
+        },
+        {
+            name: 'walkRight',
+            frames: 2
+        },
+        {
+            name: 'walkLeft',
+            frames: 2
+        },
+        {
+            name: 'crawlRight',
+            frames: 2
+        },
+        {
+            name: 'crawlLeft',
+            frames: 2
+        },
+        {
+            name: 'pushLeft',
+            frames: 1
+        },
+        {
+            name: 'pushRight',
+            frames: 1
+        },
+        {
+            name: 'fall',
+            frames: 2
+        }
+    ];
+    
+    generateAnimations = () => {
+        this.animationStates.forEach((state, index) => {
+            let frames = {
+                loc: []
+            }
+
+            for(let j = 0; j < state.frames; j++) {
+                let positionX = index * this.dimensions[0];
+                let positionY = j * this.dimensions[1];
+                frames.loc.push({ x: positionX, y: positionY });
+            }
+            
+            this.animations[state.name] = frames;
+        }
+    )}
 
     formatRef = ref => {
         return ref.map(x => {
@@ -255,8 +337,11 @@ class Character {
 
     processMovement = t => {
         if(this.tileFrom[0] === this.tileTo[0] && this.tileFrom[1] === this.tileTo[1]) {
+            level[0].sprite.player.isWalking = false;
             return false;
         }
+
+        level[0].sprite.player.isWalking = true;
 
         if((t - this.timeMoved) >= this.delayMove) {
             this.placeAt(this.tileTo[0], this.tileTo[1]);
@@ -291,6 +376,8 @@ class Character {
     }
 
     draw() {
+        this.playerState = this.setState();
+
         const currentFrameTime = Date.now();
         const timeElapsed = currentFrameTime - lastFrameTime;
         
@@ -323,14 +410,19 @@ class Character {
             }
         }
 
-        const sx = 0;
-        const sy = 0;
-        const sw = tileSize * 3;
-        const sh = tileSize * 2;
+        let position = Math.floor(this.gameFrame / this.speed) % this.animations[this.playerState].loc.length;
+        
+        let frameX = this.animations[this.playerState].loc[0].x;
+        let frameY = this.dimensions[1] * position;
+
+        const sx = frameX;
+        const sy = frameY;
+        const sw = this.dimensions[0];
+        const sh = this.dimensions[1];
         const dx = this.position[0];
         const dy = this.position[1];
-        const dw = tileSize * 3;
-        const dh = tileSize * 2;
+        const dw = this.dimensions[0];
+        const dh = this.dimensions[1];
 
         ctx.sprite.drawImage(
             spritesheet.character,
@@ -339,6 +431,8 @@ class Character {
         )
 
         lastFrameTime = currentFrameTime;
+
+        this.gameFrame++;
     }
 }
 
